@@ -1,0 +1,76 @@
+version: '3'
+services:
+  # Expose the RabbitMQ Management UI so that the queues can be easily examined.
+  rabbitmq:
+    ports:
+      - "9549:5672"
+      - "9550:15672"
+      
+  # Expose the database so that external tools may connect to it e.g. pgAdmin.
+  processingDB:
+    ports:
+      - "9551:5432"
+      
+  # Expose policy workflow API port so it may be queried externally.
+  workflowAdmin:
+    ports:
+      - "9552:8080"
+  
+  # Expose policy classification API port so it may be queried externally.
+  classificationAdmin:
+    ports:
+        - "9554:8080"
+  
+  # Expose boilerplate API port so it may be queried externally.
+  boilerplateAPI:
+    ports:
+      - "9556:8080"
+  
+  # Expose workflow worker admin port so it may be queried externally and increase log level.
+  workflowWorker:
+    ports:
+      - "9557:8081"
+    environment:
+      CAF_LOG_LEVEL: DEBUG
+      engine.environmentcache.verifyperiod: PT15S
+  
+  # Expose binary hash worker's admin ports so they may be queried externally and increase log level.
+  binaryHashWorker:
+    ports:
+      - "9560:8081"
+    environment:
+      CAF_LOG_LEVEL: DEBUG
+  
+  binaryHashWorkerLarge:
+    ports:
+      - "9561:8081"
+    environment:
+      CAF_LOG_LEVEL: DEBUG
+  
+  # Expose markup worker admin port so it may be queried externally and increase log level.
+  markupWorker:
+    ports:
+      - "9565:8081"
+    environment:
+      CAF_LOG_LEVEL: DEBUG
+  
+  # Expose language detection worker admin port so it may be queried externally and increase log level.
+  langDetectWorker:
+    ports:
+      - "9568:8081"
+    environment:
+      CAF_LOG_LEVEL: DEBUG
+  
+  # Expose boilerplate worker admin port so it may be queried externally and increase log level.
+  boilerplateWorker:
+    ports:
+      - "9569:8081"
+    environment:
+      CAF_LOG_LEVEL: DEBUG
+  
+  # Expose classification worker admin port so it may be queried externally and increase log level.
+  classificationWorker:
+    ports:
+      - "9570:8081"
+    environment:
+      CAF_LOG_LEVEL: DEBUG

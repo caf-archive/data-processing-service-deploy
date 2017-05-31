@@ -1,0 +1,258 @@
+version: '3'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: rabbitmq
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+
+  processingDB:
+    image: cafinternal/prereleases:data-processing-databases-1.0.0-SNAPSHOT
+    environment:
+      CAF_BOILERPLATE_DB_NAME: boilerplate
+      CAF_CLASSIFICATION_DB_NAME: classification
+      CAF_WORKFLOW_DB_NAME: workflow
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: root
+    volumes:
+      - data-processing-db:/var/lib/postgresql/data
+
+  workflowAdmin:
+    depends_on:
+      - processingDB
+    image: cafinternal/prereleases:policy-admin-elasticsearch-1.0.0-SNAPSHOT
+    environment:
+      POLICY_ELASTICSEARCH_DISABLED: "true"
+      api.admin.basedata: "true"
+      api.direct.repository: hibernate
+      hibernate.connectionstring: jdbc:postgresql://processingDB:5432/<dbname>?characterEncoding=UTF8&rewriteBatchedStatements=true
+      hibernate.databasename: workflow
+      hibernate.password: root
+      hibernate.user: root
+      
+  processingAPI:
+    depends_on:
+      - workflowAdmin
+    # Expose processing API port so it may be queried externally.
+    ports:
+      - "9553:8080"
+    image: cafinternal/prereleases:processing-service-1.0.0-SNAPSHOT
+    environment:
+      CAF_PROCESSING_SERVICE_POLICY_API_HOST: workflowAdmin
+      CAF_PROCESSING_SERVICE_POLICY_API_PORT: 8080
+
+  classificationAdmin:
+    depends_on:
+      - processingDB
+    image: cafinternal/prereleases:policy-admin-elasticsearch-1.0.0-SNAPSHOT
+    environment:
+      #Avoid contacting a proxy when making internal calls.
+      NO_PROXY: localhost,127.0.0.1
+      no_proxy: localhost,127.0.0.1
+      POLICY_ELASTICSEARCH_DISABLED: "false"
+      POLICY_ELASTICSEARCH_VERIFY_ATTEMPTS: 100
+      api.direct.repository: hibernate
+      hibernate.connectionstring: jdbc:postgresql://processingDB:5432/<dbname>?characterEncoding=UTF8&rewriteBatchedStatements=true
+      hibernate.databasename: classification
+      hibernate.password: root
+      hibernate.user: root
+
+  classificationAPI:
+    depends_on:
+      - classificationAdmin
+    # Expose classification API port so it may be queried externally.
+    ports:
+      - "9555:8080"
+    image: cafinternal/prereleases:classification-service-1.0.0-SNAPSHOT
+    environment:
+      CAF_CLASSIFICATION_SERVICE_POLICY_API_HOST: classificationAdmin
+      CAF_CLASSIFICATION_SERVICE_POLICY_API_PORT: 8080
+
+  boilerplateAPI:
+    depends_on:
+      - processingDB
+    image: cafdataprocessing/boilerplate-api:2.0.1
+    environment:
+      hibernate.connectionstring: jdbc:postgresql://processingDB:5432/boilerplate?characterEncoding=UTF8&rewriteBatchedStatements=true
+      hibernate.password: root
+      hibernate.user: root
+
+  taskSubmitter:
+    image: cafinternal/prereleases:data-processing-task-submitter-1.0.0-SNAPSHOT
+    depends_on:
+      - boilerplateAPI
+      - classificationAPI
+      - processingAPI
+      - rabbitmq
+    env_file:
+      - ./rabbitmq.env
+    environment:
+      CAF_RABBITMQ_PUBLISH_QUEUE: document-input
+      CAF_STORAGE_DATA_DIRECTORY: /dataStore
+      CAF_TASKSUBMITTER_BASEDATA_BOILERPLATE_API_URL: http://boilerplateAPI:8080/boilerplateapi
+      CAF_TASKSUBMITTER_BASEDATA_BOILERPLATE_OUTPUT_FILE: /outputFolder/created_boilerplate.json
+      CAF_TASKSUBMITTER_BASEDATA_CLASSIFICATION_API_URL: http://classificationAPI:8080/classification/v1
+      CAF_TASKSUBMITTER_BASEDATA_CLASSIFICATION_OUTPUT_FILE: /outputFolder/created_classification_workflow.json
+      CAF_TASKSUBMITTER_BASEDATA_CREATE_BOILERPLATE: "true"
+      CAF_TASKSUBMITTER_BASEDATA_CREATE_CLASSIFICATION: "true"
+      CAF_TASKSUBMITTER_BASEDATA_PROCESSING_API_URL: http://processingAPI:8080/data-processing-service/v1
+      CAF_TASKSUBMITTER_DOCUMENT_INPUT_DIRECTORY: /inputFolder
+      CAF_TASKSUBMITTER_PROJECTID: Default
+      CAF_TASKSUBMITTER_BASEDATA_WORKFLOW_INPUT_FILE: /workflowFolder/processing-workflow.json
+#      CAF_TASKSUBMITTER_WORKFLOW_ID: 1
+      CAF_TASKSUBMITTER_BASEDATA_CLASSIFICATION_INPUT_FILE: /workflowFolder/classification-workflow.json
+      CAF_TASKSUBMITTER_BASEDATA_BOILERPLATE_INPUT_FILE: /workflowFolder/boilerplate-expressions.json
+    volumes:
+      - worker-datastore:/dataStore
+      - ${INPUT_DOCUMENTS_LOCAL_FOLDER:-./input}:/inputFolder
+      - ${OUTPUT_DOCUMENTS_LOCAL_FOLDER:-./output}:/outputFolder
+      - ./:/workflowFolder
+
+  taskReceiver:
+    image: cafinternal/prereleases:data-processing-task-receiver-1.0.0-SNAPSHOT
+    links:
+      - rabbitmq
+    env_file:
+      - ./rabbitmq.env
+    environment:
+      CAF_RABBITMQ_CONSUME_QUEUES: document-output,document-rejected,workflow-output
+      CAF_STORAGE_DATA_DIRECTORY: /dataStore
+      CAF_TASKRECEIVER_OUTPUT_DIRECTORY: /outputFolder
+    volumes:
+      - worker-datastore:/dataStore
+      - ${OUTPUT_DOCUMENTS_LOCAL_FOLDER:-./output}:/outputFolder
+
+  workflowWorker:
+    depends_on:
+      - rabbitmq
+      - processingDB
+    image: cafinternal/prereleases:worker-data-processing-1.0.0-SNAPSHOT
+    env_file:
+      - ./rabbitmq.env
+    environment:
+      CAF_RABBITMQ_PREFETCH_BUFFER: "30"
+      CAF_DATA_PROCESSING_WORKER_REGISTER_HANDLERS: "false"
+      CAF_DATA_PROCESSING_WORKER_WORKER_THREADS: 12
+      CAF_WORKER_DATASTORE_PATH: /dataStore
+      CAF_WORKER_INPUT_QUEUE: document-input
+      CAF_WORKER_OUTPUT_QUEUE: workflow-output
+      api.admin.basedata: "true"
+      api.direct.repository: hibernate
+      api.mode: direct
+      binaryhashworkerhandler.taskqueue: dataprocessing-fs-binaryhash-in
+      boilerplateworkerhandler.taskqueue: dataprocessing-fs-boilerplate-in
+      elasticsearchclassificationworkerhandler.taskqueue: dataprocessing-fs-classification-elasticsearch-in
+      entityextractworkerhandler.taskqueue: dataprocessing-fs-entity-extract-in
+      genericqueuehandler.taskqueue: document-output
+      hibernate.connectionstring: jdbc:postgresql://processingDB:5432/<dbname>?characterEncoding=UTF8&rewriteBatchedStatements=true
+      hibernate.databasename: workflow
+      hibernate.password: root
+      hibernate.user: root
+      inheritanceworker.taskqueue: dataprocessing-fs-inheritance-in
+      langdetectworkerhandler.taskqueue: dataprocessing-fs-langdetect-in
+      markupworkerhandler.taskqueue: dataprocessing-fs-markup-in
+      ocrworkerhandler.taskqueue: dataprocessing-fs-ocr-in
+      speechworkerhandler.taskqueue: dataprocessing-fs-speech-in
+      textextractworkerhandler.taskqueue: dataprocessing-fs-extract-in
+    volumes:
+      - worker-datastore:/dataStore
+
+  binaryHashWorker:
+    depends_on:
+      - rabbitmq
+    image: cafdataprocessing/worker-binaryhash:2.0.0
+    env_file:
+      - ./rabbitmq.env
+    environment:
+      CAF_WORKER_DATASTORE_PATH: /dataStore
+      CAF_WORKER_INPUT_QUEUE: dataprocessing-fs-binaryhash-in
+      CAF_WORKER_OUTPUT_QUEUE: document-input
+    volumes:
+      - worker-datastore:/dataStore
+
+  binaryHashWorkerLarge:
+    depends_on:
+      - rabbitmq
+    image: cafdataprocessing/worker-binaryhash:2.0.0
+    env_file:
+      - ./rabbitmq.env
+    environment:
+      CAF_WORKER_DATASTORE_PATH: /dataStore
+      CAF_WORKER_INPUT_QUEUE: dataprocessing-fs-binaryhashLarge-in
+      CAF_WORKER_OUTPUT_QUEUE: document-input
+    volumes:
+      - worker-datastore:/dataStore
+
+  markupWorker:
+    depends_on:
+      - rabbitmq
+    image: cafdataprocessing/worker-markup:2.0.0
+    env_file:
+      - ./rabbitmq.env
+    environment:
+      CAF_WORKER_DATASTORE_PATH: /dataStore
+      CAF_WORKER_INPUT_QUEUE: dataprocessing-fs-markup-in
+      CAF_WORKER_OUTPUT_QUEUE: document-input
+    volumes:
+      - worker-datastore:/dataStore
+
+  langDetectWorker:
+    depends_on:
+      - rabbitmq
+    image: cafdataprocessing/worker-languagedetection:2.0.0
+    env_file:
+      - ./rabbitmq.env
+    environment:
+      CAF_WORKER_DATASTORE_PATH: /dataStore
+      CAF_WORKER_INPUT_QUEUE: dataprocessing-fs-langdetect-in
+      CAF_WORKER_OUTPUT_QUEUE: document-input
+    volumes:
+      - worker-datastore:/dataStore
+
+  boilerplateWorker:
+    depends_on:
+      - boilerplateAPI
+      - rabbitmq
+    image: cafdataprocessing/worker-boilerplate-container-fs:2.0.1
+    env_file:
+      - ./rabbitmq.env
+    environment:
+      BOILERPLATE_API_HOST: boilerplateAPI
+      CAF_BOILERPLATE_WORKER_BASE_URL: http://boilerplateAPI:8080/boilerplateapi
+      CAF_WORKER_DATASTORE_PATH: /dataStore
+      CAF_WORKER_INPUT_QUEUE: dataprocessing-fs-boilerplate-in
+      CAF_WORKER_OUTPUT_QUEUE: document-input
+    volumes:
+      - worker-datastore:/dataStore
+
+  classificationWorker:
+    depends_on:
+      - rabbitmq
+      - processingDB
+    image: cafinternal/prereleases:worker-classification-1.0.0-SNAPSHOT
+    env_file:
+      - ./rabbitmq.env
+    environment:
+      CAF_CLASSIFICATION_WORKER_REGISTER_HANDLERS: "false"
+      CAF_CLASSIFICATION_WORKER_WORKER_IDENTIFIER: PolicyClassificationWorkerElasticsearch
+      CAF_CLASSIFICATION_WORKER_WORKER_THREADS: 12
+      CAF_WORKER_DATASTORE_PATH: /dataStore
+      CAF_WORKER_INPUT_QUEUE: dataprocessing-fs-classification-elasticsearch-in
+      CAF_WORKER_OUTPUT_QUEUE: document-input
+      # Avoid contacting a proxy when making internal calls
+      NO_PROXY: localhost,127.0.0.1
+      no_proxy: localhost,127.0.0.1
+      POLICY_ELASTICSEARCH_VERIFY_ATTEMPTS: 100
+      api.direct.repository: hibernate
+      api.mode: direct
+      hibernate.connectionstring: jdbc:postgresql://processingDB:5432/<dbname>?characterEncoding=UTF8&rewriteBatchedStatements=true
+      hibernate.databasename: classification
+      hibernate.password: root
+      hibernate.user: root
+    volumes:
+      - worker-datastore:/dataStore
+
+volumes:
+  data-processing-db:
+  rabbitmq:
+  worker-datastore:
