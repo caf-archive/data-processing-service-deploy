@@ -19,7 +19,7 @@ A rabbitmq message queue that is used for communication with the workers.
 ### processingDB
 
 A postgres database instance with the workflow, classification and boilerplate databases installed, along with types required for the default workflow. Further details 
-on this container can be found [here](https://github.hpe.com/caf-staging/data-processing-service/tree/develop/utils/data-processing-databases-container).
+on this container can be found [here](https://github.com/CAFDataProcessing/data-processing-service/tree/v1.0.0/utils/data-processing-databases-container).
 
 ### workflowAdmin
 
@@ -27,7 +27,7 @@ A core policy API web service that is used by the processing API web service.
 
 ### processingAPI
 
-A data processing API web service that can be used to create workflows. The task submitter application also uses this to initialize the workflow for messages it sends when no workflow ID is provided. The API documentation can be found [here](https://pages.github.hpe.com/caf/data-processing-service/pages/en-us/Data_Processing/API).
+A data processing API web service that can be used to create workflows. The task submitter application also uses this to initialize the workflow for messages it sends when no workflow ID is provided. The API documentation can be found [here](https://cafdataprocessing.github.io/data-processing-service/pages/en-us/Data_Processing/API)).
 
 ### boilerplateAPI
 
@@ -43,11 +43,11 @@ A container that will monitor a provided folder for documents and submit task me
 
 ####	Renaming of metadata fields
 
-* Handled by the [Field Mapping Handler](https://github.hpe.com/caf-staging/worker-policy/tree/develop/handlers-converters/handlers/field-mapping).
+* Handled by the [Field Mapping Handler](https://github.com/CAFDataProcessing/worker-policy/tree/v1.0.0/handlers-converters/handlers/field-mapping).
 
 #### Identification of elements within emails and documents
 
-* Handled by the [Markup Worker](https://github.com/cafdataprocessing/worker-markup).
+* Handled by the [Markup Worker](https://github.com/CAFDataProcessing/worker-markup).
 
 #### Language detection
 
@@ -65,15 +65,15 @@ A container that will monitor a provided folder for documents and submit task me
 
 * Handled by the generic queue output action type.
 
-Further details on the task submitter application can be found [here](https://github.hpe.com/caf-staging/data-processing-service/tree/develop/utils/data-processing-task-submitter).
+Further details on the task submitter application can be found [here](https://github.com/CAFDataProcessing/data-processing-service/tree/v1.0.0/utils/data-processing-task-submitter).
 
 ### taskReceiver
 
-Application to receive messages that are output after a document has been fully processed by the workflow worker. Details about the output message will be written to folder on disk. More details about the task receiver application can be found [here](https://github.hpe.com/caf-staging/data-processing-service/tree/develop/utils/data-processing-task-receiver).
+Application to receive messages that are output after a document has been fully processed by the workflow worker. Details about the output message will be written to folder on disk. More details about the task receiver application can be found [here](https://github.com/CAFDataProcessing/data-processing-service/tree/v1.0.0/utils/data-processing-task-receiver).
 
 ### workflowWorker
 
-The workflow worker co-ordinates what processing should be performed on a document based on a workflow that is defined beforehand. More details on it can be found on the data processing documentation site [here](https://pages.github.hpe.com/caf/data-processing-service/pages/en-us/Overview) and the GitHub repository for the worker [here](https://github.hpe.com/caf-staging/worker-policy). The version of the worker container used here includes the handlers and converters required for the default workflow defined in the task submitter. Further detail on the container can be found [here](https://github.hpe.com/caf-staging/worker-policy/tree/develop/worker-data-processing-container).
+The workflow worker co-ordinates what processing should be performed on a document based on a workflow that is defined beforehand. More details on it can be found on the data processing documentation site [here](https://cafdataprocessing.github.io/data-processing-service/pages/en-us/Overview) and the GitHub repository for the worker [here](https://github.com/CAFDataProcessing/worker-policy). The version of the worker container used here includes the handlers and converters required for the default workflow defined in the task submitter. Further detail on the container can be found [here](https://github.com/CAFDataProcessing/worker-policy/tree/v1.0.0/worker-data-processing-container).
 
 ### binaryHashWorker
 
@@ -81,7 +81,7 @@ Worker to generate a binary hash for a provided document. Its GitHub repository 
 
 ### markupWorker
 
-Worker to identify elements within emails and documents such as separate message threads. Its GitHub repository is located [here](https://github.com/cafdataprocessing/worker-markup).
+Worker to identify elements within emails and documents such as separate message threads. Its GitHub repository is located [here](https://github.com/CAFDataProcessing/worker-markup).
 
 ### langDetectWorker
 
@@ -93,7 +93,7 @@ Worker to compare the text of a document against a set of defined expressions (t
 
 ### classificationWorker
 
-Worker to classify the document metadata against the classifications that have been defined. This is the Policy Worker running in Elasticsearch mode. Its GitHub repository is located [here](https://github.hpe.com/caf-staging/worker-policy/).
+Worker to classify the document metadata against the classifications that have been defined. This is the Policy Worker running in Elasticsearch mode. Its GitHub repository is located [here](https://github.com/CAFDataProcessing/worker-policy).
 
 ## Configuration
 

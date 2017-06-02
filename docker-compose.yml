@@ -1,3 +1,4 @@
+#documentation on using this compose file can be found at https://cafdataprocessing.github.io/data-processing-service/pages/en-us/Getting-Started
 version: '3'
 services:
   rabbitmq:
@@ -7,7 +8,7 @@ services:
       - rabbitmq:/var/lib/rabbitmq
 
   processingDB:
-    image: cafinternal/prereleases:data-processing-databases-1.0.0-SNAPSHOT
+    image: cafdataprocessing/data-processing-databases:1.0.0
     environment:
       CAF_BOILERPLATE_DB_NAME: boilerplate
       CAF_CLASSIFICATION_DB_NAME: classification
@@ -20,7 +21,7 @@ services:
   workflowAdmin:
     depends_on:
       - processingDB
-    image: cafinternal/prereleases:policy-admin-elasticsearch-1.0.0-SNAPSHOT
+    image: cafdataprocessing/policy-admin-elasticsearch:1.0.0
     environment:
       POLICY_ELASTICSEARCH_DISABLED: "true"
       api.admin.basedata: "true"
@@ -36,7 +37,7 @@ services:
     # Expose processing API port so it may be queried externally.
     ports:
       - "9553:8080"
-    image: cafinternal/prereleases:processing-service-1.0.0-SNAPSHOT
+    image: cafdataprocessing/processing-service:1.0.0
     environment:
       CAF_PROCESSING_SERVICE_POLICY_API_HOST: workflowAdmin
       CAF_PROCESSING_SERVICE_POLICY_API_PORT: 8080
@@ -44,7 +45,7 @@ services:
   classificationAdmin:
     depends_on:
       - processingDB
-    image: cafinternal/prereleases:policy-admin-elasticsearch-1.0.0-SNAPSHOT
+    image: cafdataprocessing/policy-admin-elasticsearch:1.0.0
     environment:
       #Avoid contacting a proxy when making internal calls.
       NO_PROXY: localhost,127.0.0.1
@@ -63,7 +64,7 @@ services:
     # Expose classification API port so it may be queried externally.
     ports:
       - "9555:8080"
-    image: cafinternal/prereleases:classification-service-1.0.0-SNAPSHOT
+    image: cafdataprocessing/classification-service:1.0.0
     environment:
       CAF_CLASSIFICATION_SERVICE_POLICY_API_HOST: classificationAdmin
       CAF_CLASSIFICATION_SERVICE_POLICY_API_PORT: 8080
@@ -78,7 +79,7 @@ services:
       hibernate.user: root
 
   taskSubmitter:
-    image: cafinternal/prereleases:data-processing-task-submitter-1.0.0-SNAPSHOT
+    image: cafdataprocessing/data-processing-task-submitter:1.0.0
     depends_on:
       - boilerplateAPI
       - classificationAPI
@@ -109,7 +110,7 @@ services:
       - ./:/workflowFolder
 
   taskReceiver:
-    image: cafinternal/prereleases:data-processing-task-receiver-1.0.0-SNAPSHOT
+    image: cafdataprocessing/data-processing-task-receiver:1.0.0
     links:
       - rabbitmq
     env_file:
@@ -126,7 +127,7 @@ services:
     depends_on:
       - rabbitmq
       - processingDB
-    image: cafinternal/prereleases:worker-data-processing-1.0.0-SNAPSHOT
+    image: cafdataprocessing/worker-data-processing:1.0.0
     env_file:
       - ./rabbitmq.env
     environment:
@@ -229,7 +230,7 @@ services:
     depends_on:
       - rabbitmq
       - processingDB
-    image: cafinternal/prereleases:worker-classification-1.0.0-SNAPSHOT
+    image: cafdataprocessing/worker-classification:1.0.0
     env_file:
       - ./rabbitmq.env
     environment:
