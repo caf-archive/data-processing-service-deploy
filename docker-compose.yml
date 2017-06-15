@@ -214,7 +214,7 @@ services:
     depends_on:
       - boilerplateAPI
       - rabbitmq
-    image: cafdataprocessing/worker-boilerplate-container-fs:2.0.1
+    image: cafdataprocessing/worker-boilerplate:2.0.1
     env_file:
       - ./rabbitmq.env
     environment:
