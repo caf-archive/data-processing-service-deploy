@@ -161,25 +161,12 @@ services:
   binaryHashWorker:
     depends_on:
       - rabbitmq
-    image: cafdataprocessing/worker-binaryhash:2.0.0
+    image: cafdataprocessing/worker-binaryhash:2.1.0
     env_file:
       - ./rabbitmq.env
     environment:
       CAF_WORKER_DATASTORE_PATH: /dataStore
       CAF_WORKER_INPUT_QUEUE: dataprocessing-fs-binaryhash-in
-      CAF_WORKER_OUTPUT_QUEUE: document-input
-    volumes:
-      - worker-datastore:/dataStore
-
-  binaryHashWorkerLarge:
-    depends_on:
-      - rabbitmq
-    image: cafdataprocessing/worker-binaryhash:2.0.0
-    env_file:
-      - ./rabbitmq.env
-    environment:
-      CAF_WORKER_DATASTORE_PATH: /dataStore
-      CAF_WORKER_INPUT_QUEUE: dataprocessing-fs-binaryhashLarge-in
       CAF_WORKER_OUTPUT_QUEUE: document-input
     volumes:
       - worker-datastore:/dataStore
@@ -200,7 +187,7 @@ services:
   langDetectWorker:
     depends_on:
       - rabbitmq
-    image: cafdataprocessing/worker-languagedetection:2.0.0
+    image: cafdataprocessing/worker-languagedetection:2.1.0
     env_file:
       - ./rabbitmq.env
     environment:
