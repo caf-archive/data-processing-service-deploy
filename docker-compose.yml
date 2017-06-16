@@ -37,7 +37,7 @@ services:
     # Expose processing API port so it may be queried externally.
     ports:
       - "9553:8080"
-    image: cafdataprocessing/processing-service:1.0.0
+    image: cafdataprocessing/processing-service:1.1.0
     environment:
       CAF_PROCESSING_SERVICE_POLICY_API_HOST: workflowAdmin
       CAF_PROCESSING_SERVICE_POLICY_API_PORT: 8080
@@ -72,14 +72,14 @@ services:
   boilerplateAPI:
     depends_on:
       - processingDB
-    image: cafdataprocessing/boilerplate-api:2.0.1
+    image: cafdataprocessing/boilerplate-api:2.1.0
     environment:
       hibernate.connectionstring: jdbc:postgresql://processingDB:5432/boilerplate?characterEncoding=UTF8&rewriteBatchedStatements=true
       hibernate.password: root
       hibernate.user: root
 
   taskSubmitter:
-    image: cafdataprocessing/data-processing-task-submitter:1.0.0
+    image: cafdataprocessing/data-processing-task-submitter:1.1.0
     depends_on:
       - boilerplateAPI
       - classificationAPI
@@ -110,7 +110,7 @@ services:
       - ./:/workflowFolder
 
   taskReceiver:
-    image: cafdataprocessing/data-processing-task-receiver:1.0.0
+    image: cafdataprocessing/data-processing-task-receiver:1.1.0
     links:
       - rabbitmq
     env_file:
@@ -214,7 +214,7 @@ services:
     depends_on:
       - boilerplateAPI
       - rabbitmq
-    image: cafdataprocessing/worker-boilerplate:2.0.1
+    image: cafdataprocessing/worker-boilerplate:2.1.0
     env_file:
       - ./rabbitmq.env
     environment:
