@@ -127,7 +127,7 @@ services:
     depends_on:
       - rabbitmq
       - processingDB
-    image: cafdataprocessing/worker-data-processing:1.0.0
+    image: cafdataprocessing/worker-data-processing:1.1.0
     env_file:
       - ./rabbitmq.env
     environment:
@@ -187,7 +187,7 @@ services:
   markupWorker:
     depends_on:
       - rabbitmq
-    image: cafdataprocessing/worker-markup:2.0.0
+    image: cafdataprocessing/worker-markup:2.1.0
     env_file:
       - ./rabbitmq.env
     environment:
@@ -230,7 +230,7 @@ services:
     depends_on:
       - rabbitmq
       - processingDB
-    image: cafdataprocessing/worker-classification:1.0.0
+    image: cafdataprocessing/worker-classification:1.1.0
     env_file:
       - ./rabbitmq.env
     environment:
