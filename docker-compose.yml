@@ -8,7 +8,7 @@ services:
       - rabbitmq:/var/lib/rabbitmq
 
   processingDB:
-    image: cafdataprocessing/data-processing-databases:1.0.0
+    image: cafdataprocessing/data-processing-databases:1.1.0
     environment:
       CAF_BOILERPLATE_DB_NAME: boilerplate
       CAF_CLASSIFICATION_DB_NAME: classification
