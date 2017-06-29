@@ -8,7 +8,7 @@ services:
       - rabbitmq:/var/lib/rabbitmq
 
   processingDB:
-    image: cafdataprocessing/data-processing-databases:1.1.0
+    image: cafdataprocessing/data-processing-databases:1.2.0-SNAPSHOT
     environment:
       CAF_BOILERPLATE_DB_NAME: boilerplate
       CAF_CLASSIFICATION_DB_NAME: classification
@@ -37,7 +37,7 @@ services:
     # Expose processing API port so it may be queried externally.
     ports:
       - "9553:8080"
-    image: cafdataprocessing/processing-service:1.1.0
+    image: cafdataprocessing/processing-service:1.2.0-SNAPSHOT
     environment:
       CAF_PROCESSING_SERVICE_POLICY_API_HOST: workflowAdmin
       CAF_PROCESSING_SERVICE_POLICY_API_PORT: 8080
@@ -64,7 +64,7 @@ services:
     # Expose classification API port so it may be queried externally.
     ports:
       - "9555:8080"
-    image: cafdataprocessing/classification-service:1.0.0
+    image: cafdataprocessing/classification-service:1.1.0-SNAPSHOT
     environment:
       CAF_CLASSIFICATION_SERVICE_POLICY_API_HOST: classificationAdmin
       CAF_CLASSIFICATION_SERVICE_POLICY_API_PORT: 8080
@@ -79,7 +79,7 @@ services:
       hibernate.user: root
 
   taskSubmitter:
-    image: cafdataprocessing/data-processing-task-submitter:1.1.0
+    image: cafdataprocessing/data-processing-task-submitter:1.2.0-SNAPSHOT
     depends_on:
       - boilerplateAPI
       - classificationAPI
@@ -110,7 +110,7 @@ services:
       - ./:/workflowFolder
 
   taskReceiver:
-    image: cafdataprocessing/data-processing-task-receiver:1.1.0
+    image: cafdataprocessing/data-processing-task-receiver:1.2.0-SNAPSHOT
     links:
       - rabbitmq
     env_file:
