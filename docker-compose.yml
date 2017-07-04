@@ -127,7 +127,7 @@ services:
     depends_on:
       - rabbitmq
       - processingDB
-    image: cafdataprocessing/worker-data-processing:1.1.0
+    image: cafinternal/prereleases:worker-data-processing-1.2.0-SNAPSHOT
     env_file:
       - ./rabbitmq.env
     environment:
