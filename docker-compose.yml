@@ -174,7 +174,7 @@ services:
   markupWorker:
     depends_on:
       - rabbitmq
-    image: cafdataprocessing/worker-markup:2.1.0
+    image: cafinternal/prereleases:worker-markup-2.2.0-SNAPSHOT
     env_file:
       - ./rabbitmq.env
     environment:
