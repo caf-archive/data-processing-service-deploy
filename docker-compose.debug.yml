@@ -47,8 +47,8 @@ services:
     environment:
       CAF_LOG_LEVEL: DEBUG
   
-  # Expose markup worker admin port so it may be queried externally and increase log level.
-  markupWorker:
+  # Expose family hashing worker admin port so it may be queried externally and increase log level.
+  familyHashingWorker:
     ports:
       - "9565:8081"
     environment:
