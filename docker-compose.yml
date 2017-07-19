@@ -171,10 +171,10 @@ services:
     volumes:
       - worker-datastore:/dataStore
 
-  markupWorker:
+  familyHashingWorker:
     depends_on:
       - rabbitmq
-    image: cafdataprocessing/worker-markup:2.1.0
+    image: cafinternal/prereleases:worker-familyhashing-1.0.0-SNAPSHOT
     env_file:
       - ./rabbitmq.env
     environment:
