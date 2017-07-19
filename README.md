@@ -47,7 +47,7 @@ A container that will monitor a provided folder for documents and submit task me
 
 #### Identification of elements within emails and documents
 
-* Handled by the [Markup Worker](https://github.com/CAFDataProcessing/worker-markup).
+* Handled by the [Family Hashing Worker](https://github.houston.softwaregrp.net/caf/worker-familyhashing).
 
 #### Language detection
 
@@ -79,9 +79,9 @@ The workflow worker co-ordinates what processing should be performed on a docume
 
 Worker to generate a binary hash for a provided document. Its GitHub repository is located [here](https://github.com/CAFDataProcessing/worker-binaryhash).
 
-### markupWorker
+### familyHashingWorker
 
-Worker to identify elements within emails and documents such as separate message threads. Its GitHub repository is located [here](https://github.com/CAFDataProcessing/worker-markup).
+Worker to identify elements within emails and documents such as separate message threads. Its GitHub repository is located [here](https://github.houston.softwaregrp.net/caf/worker-familyhashing).
 
 ### langDetectWorker
 
