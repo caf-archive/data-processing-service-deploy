@@ -38,7 +38,7 @@
                         "name": "Email From field contains Travel Company domain",
                         "additional": {
                             "type": "termlist",
-                            "field": "subject",
+                            "field": "from",
                             "value": "Travel Company Email Domain Names"
                         }
                     },

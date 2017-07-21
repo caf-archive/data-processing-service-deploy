@@ -117,8 +117,8 @@
                     "actionConditions": []
                 },
                 {
-                    "name": "Markup",
-                    "description": "Markup documents.",
+                    "name": "Family Hashing",
+                    "description": "Perform family hashing and marking up of documents.",
                     "order": 300,
                     "settings": {
                         "fields": [
@@ -154,7 +154,7 @@
                             "thread-topic",
                             "to"
                         ],
-                        "workerName": "markupworkerhandler",
+                        "workerName": "familyhashingworker",
                         "customData": {
                         }
                     },
@@ -166,8 +166,7 @@
                     "description": "Detects top 3 languages in an uploaded document.",
                     "order": 700,
                     "settings": {
-                        "workerName": "worker-languagedetection",
-                        "queueName": "dataprocessing-fs-langdetect-in",
+                        "workerName": "langdetectworker",
                         "fields": ["CONTENT"]
                     },
                     "typeName": "DocumentWorkerHandler",
