@@ -41,12 +41,6 @@ services:
     environment:
       CAF_LOG_LEVEL: DEBUG
   
-  binaryHashWorkerLarge:
-    ports:
-      - "9561:8081"
-    environment:
-      CAF_LOG_LEVEL: DEBUG
-  
   # Expose family hashing worker admin port so it may be queried externally and increase log level.
   familyHashingWorker:
     ports:
