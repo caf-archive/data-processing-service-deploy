@@ -6,7 +6,7 @@
             "description": "Extracts document metadata.",
             "priority": 100,
             "actions": [{
-                    "name": "BinaryHash Small",
+                    "name": "BinaryHash",
                     "description": "Returns a SHA-1 digest of the input file.",
                     "order": 100,
                     "settings": {
@@ -14,20 +14,6 @@
                     },
                     "typeName": "BinaryHashPolicyType",
                     "actionConditions": [{
-                            "name": "Small File and No Hash",
-                            "additional": {
-                                "type": "boolean",
-                                "operator": "and",
-                                "children": [{
-                                        "name": "Small File",
-                                        "additional": {
-                                            "type": "number",
-                                            "value": "1000000",
-                                            "operator": "lt",
-                                            "field": "FILESIZE_BYTES"
-                                        }
-                                    },
-                                    {
                                         "name": "No Hash",
                                         "additional": {
                                             "type": "not",
@@ -39,69 +25,6 @@
                                                 }
                                             }
                                         }
-                                    }
-                                ]
-                            }
-                        }]
-                },
-                {
-                    "name": "BinaryHash Large",
-                    "description": "Returns a SHA-1 digest of the input file.",
-                    "order": 110,
-                    "settings": {
-                        "queueName": "dataprocessing-fs-binaryhashLarge-in"
-                    },
-                    "typeName": "BinaryHashPolicyType",
-                    "actionConditions": [{
-                            "name": "Large File and No Hash",
-                            "additional": {
-                                "type": "boolean",
-                                "operator": "and",
-                                "children": [{
-                                        "name": "Large File or No Filesize",
-                                        "additional": {
-                                            "type": "boolean",
-                                            "operator": "or",
-                                            "children": [{
-                                                    "name": "Large File",
-                                                    "additional": {
-                                                        "type": "number",
-                                                        "value": "999999",
-                                                        "operator": "gt",
-                                                        "field": "FILESIZE_BYTES"
-                                                    }
-                                                },
-                                                {
-                                                    "name": "No FILESIZE_BYTES",
-                                                    "additional": {
-                                                        "type": "not",
-                                                        "condition": {
-                                                            "name": "FILESIZE_BYTES exists",
-                                                            "additional": {
-                                                                "type": "exists",
-                                                                "field": "FILESIZE_BYTES"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    },
-                                    {
-                                        "name": "No Hash",
-                                        "additional": {
-                                            "type": "not",
-                                            "condition": {
-                                                "name": "BINARY_HASH_SHA1 exists",
-                                                "additional": {
-                                                    "type": "exists",
-                                                    "field": "BINARY_HASH_SHA1"
-                                                }
-                                            }
-                                        }
-                                    }
-                                ]
-                            }
                         }]
                 },
                 {

@@ -9,6 +9,7 @@ ${version-number}
 - [CAF-3245](https://jira.autonomy.com/browse/CAF-3245): Use latest releases of data processing services.
 
 #### Bug Fixes
-* Correction to a classification definition on the workflow.
+* Correction to classification definition on the classification workflow.
+* Removal of large binary hash worker entries from processing workflow and debug compose file.
 
 #### Known Issues
