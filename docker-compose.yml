@@ -37,7 +37,7 @@ services:
     # Expose processing API port so it may be queried externally.
     ports:
       - "9553:8080"
-    image: cafdataprocessing/processing-service:1.2
+    image: cafdataprocessing/processing-service:1.3
     environment:
       CAF_PROCESSING_SERVICE_POLICY_API_HOST: workflowAdmin
       CAF_PROCESSING_SERVICE_POLICY_API_PORT: 8080
@@ -64,7 +64,7 @@ services:
     # Expose classification API port so it may be queried externally.
     ports:
       - "9555:8080"
-    image: cafdataprocessing/classification-service:1.1
+    image: cafdataprocessing/classification-service:1.2
     environment:
       CAF_CLASSIFICATION_SERVICE_POLICY_API_HOST: classificationAdmin
       CAF_CLASSIFICATION_SERVICE_POLICY_API_PORT: 8080
@@ -72,14 +72,14 @@ services:
   boilerplateAPI:
     depends_on:
       - processingDB
-    image: cafdataprocessing/boilerplate-api:2.1
+    image: cafdataprocessing/boilerplate-api:2.2
     environment:
       hibernate.connectionstring: jdbc:postgresql://processingDB:5432/boilerplate?characterEncoding=UTF8&rewriteBatchedStatements=true
       hibernate.password: root
       hibernate.user: root
 
   taskSubmitter:
-    image: cafdataprocessing/data-processing-task-submitter:1.2
+    image: cafdataprocessing/data-processing-task-submitter:1.3
     depends_on:
       - boilerplateAPI
       - classificationAPI
@@ -110,7 +110,7 @@ services:
       - ./:/workflowFolder
 
   taskReceiver:
-    image: cafdataprocessing/data-processing-task-receiver:1.2
+    image: cafdataprocessing/data-processing-task-receiver:1.3
     links:
       - rabbitmq
     env_file:
@@ -174,7 +174,7 @@ services:
   familyHashingWorker:
     depends_on:
       - rabbitmq
-    image: cafdataprocessing/worker-familyhashing:1.0
+    image: cafdataprocessing/worker-familyhashing:1.1
     env_file:
       - ./rabbitmq.env
     environment:
@@ -187,7 +187,7 @@ services:
   langDetectWorker:
     depends_on:
       - rabbitmq
-    image: cafdataprocessing/worker-languagedetection:2.2
+    image: cafdataprocessing/worker-languagedetection:2.3
     env_file:
       - ./rabbitmq.env
     environment:
@@ -201,7 +201,7 @@ services:
     depends_on:
       - boilerplateAPI
       - rabbitmq
-    image: cafdataprocessing/worker-boilerplate:2.1
+    image: cafdataprocessing/worker-boilerplate:2.2
     env_file:
       - ./rabbitmq.env
     environment:
@@ -217,7 +217,7 @@ services:
     depends_on:
       - rabbitmq
       - processingDB
-    image: cafdataprocessing/worker-classification:1.3
+    image: cafdataprocessing/worker-classification:1.4
     env_file:
       - ./rabbitmq.env
     environment:
