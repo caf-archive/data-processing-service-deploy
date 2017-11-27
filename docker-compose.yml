@@ -161,7 +161,7 @@ services:
   binaryHashWorker:
     depends_on:
       - rabbitmq
-    image: cafdataprocessing/worker-binaryhash:2.1
+    image: cafdataprocessing/worker-binaryhash:2.2
     env_file:
       - ./rabbitmq.env
     environment:
